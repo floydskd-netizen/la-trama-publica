@@ -8,7 +8,11 @@
     "title": "Kicillof en Nueva York: qué muestra el video de ‘hacé como que hablás’ y qué está verificado",
     "summary": "El clip que se volvió viral en X, la agenda oficial de la gira y los límites de lo que puede concluirse a partir de un recorte de pocos segundos.",
     "href": "notas/kicillof-nueva-york-video-viral/",
-    "status": "Publicado"
+    "status": "Publicado",
+    "topics": [
+      "Política y Estado",
+      "Sociedad"
+    ]
   },
   {
     "slug": "laura-de-marinis-91-firmantes",
@@ -19,6 +23,12 @@
     "title": "Comunicado de apoyo a Laura De Marinis: quiénes son los 91 firmantes",
     "summary": "Una base verificable que organiza la nómina pública, distingue cargos y muestra el nivel de verificación y las fuentes disponibles para cada registro.",
     "href": "notas/laura-de-marinis-91-firmantes/",
-    "status": "Publicado"
+    "status": "Publicado",
+    "topics": [
+      "Justicia",
+      "Sociedad",
+      "Documentos públicos",
+      "Investigaciones"
+    ]
   }
 ]
