@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="La Trama Pública: noticias, documentos y debate ciudadano con fuentes visibles y criterios de verificación.">
+  <title>La Trama Pública</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <header class="site-header">
+    <div class="masthead wrap">
+      <a class="brand" href="#inicio" aria-label="La Trama Pública, inicio">
+        <span class="brand-mark">TP</span>
+        <span><strong>La Trama Pública</strong><small>Noticias, documentos y debate ciudadano.</small></span>
+      </a>
+      <button class="nav-toggle" aria-label="Abrir menú" aria-expanded="false">Menú</button>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a href="#inicio">Inicio</a><a href="#expediente">Expediente</a><a href="#perfiles">Perfiles</a><a href="#metodologia">Metodología</a><a href="#correcciones">Correcciones</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <section class="hero" id="inicio">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">Información pública · fuentes visibles</p>
+          <h1>Seguir los hechos.<br>Ver los documentos.<br>Entender el contexto.</h1>
+          <p class="lead">Un espacio argentino de información y debate que separa hechos, documentos, contexto y opinión. Cada dato relevante debe poder rastrearse hasta su fuente.</p>
+          <div class="hero-actions"><a class="btn primary" href="#expediente">Ver primer expediente</a><a class="btn ghost" href="#metodologia">Cómo verificamos</a></div>
+        </div>
+        <aside class="hero-note" aria-label="Principios editoriales">
+          <span class="rule"></span><p class="kicker">Principio editorial</p>
+          <blockquote>Las afirmaciones fácticas importantes deben enlazar a una fuente.</blockquote>
+          <p class="muted">La información publicada distingue nivel de verificación y conserva un mecanismo de corrección y derecho a réplica.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="numbers" aria-label="Estado de la investigación">
+      <div class="wrap stats-grid">
+        <div><strong id="stat-total">91</strong><span>firmantes relevados</span></div>
+        <div><strong id="stat-verified">71</strong><span>verificados 2026</span></div>
+        <div><strong id="stat-photos">21</strong><span>retratos verificados</span></div>
+        <div><strong>24.09.26</strong><span>cierre de esta base</span></div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="expediente">
+      <div class="section-head"><div><p class="eyebrow">Primer expediente</p><h2>Laura De Marinis — comunicado y 91 firmantes</h2></div><span class="status verified">Base documentada</span></div>
+      <div class="case-grid">
+        <article class="case-main">
+          <p class="big-copy">Este expediente organiza la nómina de 91 personas identificadas en un comunicado público de apoyo a Laura De Marinis. La base distingue categorías funcionales y el nivel de verificación disponible para cada registro.</p>
+          <div class="labels"><span>HECHOS</span><span>DOCUMENTOS</span><span>CONTEXTO</span></div>
+          <p>No se publica domicilio particular, DNI/CUIT ni información privada. Los datos de contacto que aparecen en las fichas son exclusivamente institucionales y laborales cuando fueron incluidos en la investigación.</p>
+        </article>
+        <aside class="case-side">
+          <h3>Qué contiene</h3>
+          <ul><li>Directorio completo de firmantes</li><li>Cargo y dependencia</li><li>Mecanismo de designación</li><li>Nivel de verificación</li><li>Fuentes primarias y adicionales</li><li>Retratos públicos sólo cuando la identidad fue verificada</li></ul>
+        </aside>
+      </div>
+    </section>
+
+    <section class="directory section" id="perfiles">
+      <div class="wrap">
+        <div class="section-head"><div><p class="eyebrow">Directorio verificable</p><h2>91 perfiles públicos</h2></div><p class="results" id="result-count">Cargando…</p></div>
+        <div class="tools">
+          <label class="search"><span>Buscar</span><input id="search" type="search" placeholder="Nombre, cargo, organismo…" autocomplete="off"></label>
+          <label><span>Categoría</span><select id="type-filter"><option value="">Todas</option></select></label>
+          <label><span>Verificación</span><select id="verification-filter"><option value="">Todos los niveles</option><option>Verificado 2026</option><option>Parcial</option><option>Último dato anterior</option><option>No verificado</option></select></label>
+        </div>
+        <div class="cards" id="profiles" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="section method" id="metodologia">
+      <div class="wrap narrow">
+        <p class="eyebrow">Metodología</p><h2>Cómo se construyó la base</h2>
+        <div class="method-grid">
+          <div><span class="num">01</span><h3>Prioridad de fuentes</h3><p>Primero organismos oficiales de 2026; luego documentos oficiales anteriores, publicaciones institucionales y, sólo cuando no hubo fuente oficial nominal actual, fuentes secundarias.</p></div>
+          <div><span class="num">02</span><h3>Nivel de certeza</h3><p>Cada ficha conserva una etiqueta de verificación: Verificado 2026, Parcial, Último dato anterior o No verificado.</p></div>
+          <div><span class="num">03</span><h3>Privacidad</h3><p>El proyecto se limita a actividad pública e información de interés público. No se incorporan domicilios particulares, teléfonos personales, DNI/CUIT ni datos privados.</p></div>
+          <div><span class="num">04</span><h3>Imágenes</h3><p>Un retrato se publica únicamente cuando la fuente y la identidad pudieron verificarse. Si existe duda, la ficha queda sin fotografía.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section corrections" id="correcciones">
+      <div class="wrap corrections-grid"><div><p class="eyebrow">Correcciones y derecho a réplica</p><h2>Los datos relevantes no se corrigen en silencio.</h2></div><div><p>La política del proyecto exige registrar qué cambió, cuándo, por qué y cuál es la fuente nueva. También prevé un mecanismo para aportar documentación, pedir una actualización o responder a contenido publicado.</p><p class="muted">El formulario de recepción se incorporará en la siguiente etapa, junto con usuarios y moderación.</p></div></div>
+    </section>
+  </main>
+
+  <footer><div class="wrap footer-grid"><div><strong>La Trama Pública</strong><p>Noticias, documentos y debate ciudadano.</p></div><div><p>Proyecto en fase pública de validación.</p><p>Fuentes visibles · correcciones trazables · privacidad por diseño.</p></div></div></footer>
+
+  <dialog id="profile-dialog"><button class="close" aria-label="Cerrar">×</button><div id="profile-detail"></div></dialog>
+  <script src="app.js"></script>
+</body>
+</html>

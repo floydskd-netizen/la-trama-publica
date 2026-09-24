@@ -1,0 +1,33 @@
+{
+  "total": 91,
+  "verified_2026": 71,
+  "partial": 7,
+  "historical": 8,
+  "unverified": 5,
+  "photos_verified": 21,
+  "photos_downloaded": 21,
+  "types": {
+    "Juez": 15,
+    "Defensora": 12,
+    "Jueza": 12,
+    "Defensor": 9,
+    "Asesora tutelar": 3,
+    "Auxiliar defensor": 4,
+    "Defensor interino": 4,
+    "Funcionario judicial": 6,
+    "Defensora General Adjunta": 2,
+    "No verificado": 4,
+    "Fiscal": 1,
+    "Juez de Cámara": 3,
+    "Defensora interina": 2,
+    "Funcionaria judicial": 6,
+    "Defensor de Cámara": 1,
+    "Defensora General": 1,
+    "Asesor tutelar de Cámara": 1,
+    "Asesora tutelar de Cámara": 1,
+    "Defensora de Cámara": 1,
+    "Funcionaria judicial / concursante": 1,
+    "Jueza de Cámara": 1,
+    "Defensor General Adjunto": 1
+  }
+}
