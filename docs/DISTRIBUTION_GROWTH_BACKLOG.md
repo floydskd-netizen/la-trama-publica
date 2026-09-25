@@ -96,7 +96,7 @@ Report only:
 
 DONE IN SOURCE: phases 1, 2, phase 3 sitemap/news technical files, 4, 5, 6, 7, 8 first-party measurement, 9 basic retention, 10, 11 documentation, and the technical portion of phase 13.
 
-PARTIAL: phase 12 has a maintainable downstream generator for validation, sitemaps, RSS, distribution copy and tracked URLs; creation of a brand-new article/social-card asset is not yet one fully automated command.
+DONE FOR EXISTING STATIC ARCHITECTURE: phase 12 has a one-command downstream preparation step (`node tools/prepare-publication.mjs`) that installs/verifies growth client hooks and regenerates validation, sitemaps, RSS, distribution copy and tracked URLs. Editorial creation of a brand-new article and its social-card artwork remains content production, not an automatic publishing action.
 
 OWNER ACTION REMAINS: Search Console ownership/sitemap submission; Supabase custom SMTP and full authenticated discussion test; explicit admin-profile assignment; external account/channel authorization.
 
