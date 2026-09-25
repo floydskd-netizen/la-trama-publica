@@ -92,9 +92,25 @@ function render(){
 }
 
 async function login(email){
-  const redirect=location.href.split('#')[0]+'#debate-thread';
+  const anchor=document.querySelector('[data-discussion-inline]')?'#debate':'#debate-thread';
+  const returnTarget=location.pathname+location.search+anchor;
+  try{localStorage.setItem('ltp_auth_return',returnTarget)}catch{}
+  const redirect=location.href.split('#')[0];
   const {error}=await client.auth.signInWithOtp({email,options:{emailRedirectTo:redirect,shouldCreateUser:true}});
   if(error)throw error;
+}
+
+function restoreAuthReturn(){
+  let target='';
+  try{target=localStorage.getItem('ltp_auth_return')||''}catch{}
+  if(!target)return;
+  const u=new URL(target,location.origin);
+  if(u.origin!==location.origin||!u.pathname.startsWith('/la-trama-publica/'))return;
+  try{localStorage.removeItem('ltp_auth_return')}catch{}
+  if(u.pathname===location.pathname&&u.search===location.search){
+    history.replaceState(null,'',u.pathname+u.search+u.hash);
+    if(u.hash)requestAnimationFrame(()=>document.querySelector(u.hash)?.scrollIntoView({behavior:'smooth',block:'start'}));
+  }else location.replace(u.href);
 }
 
 async function saveAlias(alias){
@@ -136,8 +152,8 @@ async function init(){
   createClient=supabaseModule.createClient;
   client=createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
   const {data}=await client.auth.getSession(); session=data.session;
-  if(session){await loadProfile();await recordAccess('session')}
-  client.auth.onAuthStateChange(async(event,newSession)=>{const was=!session&&!!newSession;session=newSession;if(session)await loadProfile();else profile=null;if(was)await recordAccess('login');render()});
+  if(session){await loadProfile();await recordAccess('session');restoreAuthReturn()}
+  client.auth.onAuthStateChange(async(event,newSession)=>{const was=!session&&!!newSession;session=newSession;if(session)await loadProfile();else profile=null;if(was){await recordAccess('login');restoreAuthReturn()}render()});
   await loadComments();
   client.channel(`comments:${articleKey}`).on('postgres_changes',{event:'*',schema:'public',table:'comments',filter:`article_slug=eq.${articleKey}`},()=>loadComments()).subscribe();
 }
