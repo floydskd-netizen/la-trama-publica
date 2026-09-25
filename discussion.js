@@ -7,18 +7,20 @@ const isEn = (root.lang || '').toLowerCase().startsWith('en');
 const cfg = window.LTP_DISCUSSION_CONFIG || {};
 const text = isEn ? {
   debate:'Article discussion', join:'Join the discussion', latest:'Latest comments', all:'View full thread',
-  note:'Reader opinions — not verified by La Trama Pública.', login:'Sign in by email', email:'Email', send:'Send access link',
-  sent:'Check your email for the access link.', alias:'Public alias', saveAlias:'Save alias', comment:'Write a comment', publish:'Publish',
+  note:'Reader opinions — not verified by La Trama Pública.', login:'Sign in by email', email:'Email', send:'Send code', code:'6-digit code', verify:'Verify code', changeEmail:'Use another email',
+  sent:'Check your email and enter the 6-digit code.', alias:'Public alias', saveAlias:'Save alias', comment:'Write a comment', publish:'Publish',
   reply:'Reply', report:'Report', noComments:'No comments yet. Start the discussion.', unavailable:'Discussion is being configured.'
 } : {
   debate:'Debate de esta nota', join:'Sumate a la conversación', latest:'Últimos comentarios', all:'Ver discusión completa',
-  note:'Opiniones de lectores — no verificadas por La Trama Pública.', login:'Ingresar por email', email:'Email', send:'Enviar enlace de acceso',
-  sent:'Revisá tu email para abrir el enlace de acceso.', alias:'Alias público', saveAlias:'Guardar alias', comment:'Escribí un comentario', publish:'Publicar',
+  note:'Opiniones de lectores — no verificadas por La Trama Pública.', login:'Ingresar por email', email:'Email', send:'Enviar código', code:'Código de 6 dígitos', verify:'Verificar código', changeEmail:'Usar otro email',
+  sent:'Revisá tu email e ingresá el código de 6 dígitos.', alias:'Alias público', saveAlias:'Guardar alias', comment:'Escribí un comentario', publish:'Publicar',
   reply:'Responder', report:'Reportar', noComments:'Todavía no hay comentarios. Abrí la conversación.', unavailable:'El debate se está configurando.'
 };
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let client = null, session = null, profile = null, comments = [];
+let client = null, session = null, profile = null, comments = [], pendingOtpEmail = '';
+try{pendingOtpEmail=sessionStorage.getItem('ltp_otp_email')||''}catch{}
+function setPendingOtpEmail(email){pendingOtpEmail=email;try{if(email)sessionStorage.setItem('ltp_otp_email',email);else sessionStorage.removeItem('ltp_otp_email')}catch{}}
 function deviceInfo(){
   const ua=navigator.userAgent||'';
   const browser=/Edg\//.test(ua)?'Edge':/Chrome\//.test(ua)?'Chrome':/Firefox\//.test(ua)?'Firefox':/Safari\//.test(ua)&&!/Chrome\//.test(ua)?'Safari':'Other';
@@ -74,7 +76,10 @@ function renderTree(items,parent=null,depth=0){
 function renderAuth(){
   const box=document.querySelector('[data-auth-box]'); if(!box)return;
   if(!cfg.enabled||!client){box.innerHTML=`<div class="discussion-status">${text.unavailable}</div>`;return}
-  if(!session){box.innerHTML=`<form class="discussion-auth" data-login-form><h3>${text.login}</h3><label>${text.email}<input type="email" name="email" required autocomplete="email"></label><button class="btn primary" type="submit">${text.send}</button><p data-login-msg></p></form>`;return}
+  if(!session){
+    if(pendingOtpEmail){box.innerHTML=`<form class="discussion-auth" data-otp-form><h3>${text.code}</h3><label>${text.code}<input type="text" name="token" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required></label><button class="btn primary" type="submit">${text.verify}</button><button class="btn ghost" type="button" data-change-email>${text.changeEmail}</button><p data-otp-msg>${text.sent}</p></form>`;return}
+    box.innerHTML=`<form class="discussion-auth" data-login-form><h3>${text.login}</h3><label>${text.email}<input type="email" name="email" required autocomplete="email"></label><button class="btn primary" type="submit">${text.send}</button><p data-login-msg></p></form>`;return
+  }
   if(!profile){box.innerHTML=`<form class="discussion-auth" data-alias-form><h3>${text.alias}</h3><label>${text.alias}<input type="text" name="alias" minlength="3" maxlength="40" required></label><button class="btn primary" type="submit">${text.saveAlias}</button><p class="discussion-note">${isEn?'Your email remains private.':'Tu email permanece privado.'}</p></form>`;return}
   box.innerHTML=`<div class="discussion-user"><strong>@${esc(profile.alias)}</strong><button type="button" data-signout>${isEn?'Sign out':'Salir'}</button></div>`;
 }
@@ -92,25 +97,21 @@ function render(){
 }
 
 async function login(email){
-  const anchor=document.querySelector('[data-discussion-inline]')?'#debate':'#debate-thread';
-  const returnTarget=location.pathname+location.search+anchor;
-  try{localStorage.setItem('ltp_auth_return',returnTarget)}catch{}
-  const redirect=location.href.split('#')[0];
-  const {error}=await client.auth.signInWithOtp({email,options:{emailRedirectTo:redirect,shouldCreateUser:true}});
+  const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
   if(error)throw error;
+  setPendingOtpEmail(email);
 }
 
-function restoreAuthReturn(){
-  let target='';
-  try{target=localStorage.getItem('ltp_auth_return')||''}catch{}
-  if(!target)return;
-  const u=new URL(target,location.origin);
-  if(u.origin!==location.origin||!u.pathname.startsWith('/la-trama-publica/'))return;
-  try{localStorage.removeItem('ltp_auth_return')}catch{}
-  if(u.pathname===location.pathname&&u.search===location.search){
-    history.replaceState(null,'',u.pathname+u.search+u.hash);
-    if(u.hash)requestAnimationFrame(()=>document.querySelector(u.hash)?.scrollIntoView({behavior:'smooth',block:'start'}));
-  }else location.replace(u.href);
+async function verifyOtpCode(token){
+  if(!pendingOtpEmail)throw new Error(isEn?'Enter your email again.':'Ingresá tu email nuevamente.');
+  const code=String(token||'').replace(/\D/g,'');
+  if(code.length!==6)throw new Error(isEn?'Enter the 6-digit code.':'Ingresá el código de 6 dígitos.');
+  const {error}=await client.auth.verifyOtp({email:pendingOtpEmail,token:code,type:'email'});
+  if(error)throw error;
+  setPendingOtpEmail('');
+  const {data}=await client.auth.getSession(); session=data.session;
+  if(session)await loadProfile();
+  render();
 }
 
 async function saveAlias(alias){
@@ -132,7 +133,8 @@ async function reportComment(id){
 document.addEventListener('submit',async e=>{
   const f=e.target;
   try{
-    if(f.matches('[data-login-form]')){e.preventDefault();const msg=f.querySelector('[data-login-msg]');await login(f.email.value.trim());msg.textContent=text.sent;f.reset()}
+    if(f.matches('[data-login-form]')){e.preventDefault();await login(f.email.value.trim());render()}
+    if(f.matches('[data-otp-form]')){e.preventDefault();await verifyOtpCode(f.token.value)}
     if(f.matches('[data-alias-form]')){e.preventDefault();await saveAlias(f.alias.value.trim())}
     if(f.matches('[data-comment-form]')){e.preventDefault();const msg=f.querySelector('[data-comment-msg]');msg.textContent=isEn?'Publishing…':'Publicando…';await publishComment(f.body.value.trim(),f.parent_id.value);msg.textContent='';renderComposer()}
   }catch(err){console.error(err);const msg=f.querySelector('p');if(msg)msg.textContent=err.message||String(err)}
@@ -141,6 +143,7 @@ document.addEventListener('submit',async e=>{
 document.addEventListener('click',async e=>{
   const reply=e.target.closest('[data-reply]'); if(reply){renderComposer(reply.dataset.reply);document.querySelector('[data-comment-form]')?.scrollIntoView({behavior:'smooth',block:'center'});return}
   if(e.target.closest('[data-cancel-reply]')){renderComposer();return}
+  if(e.target.closest('[data-change-email]')){setPendingOtpEmail('');render();return}
   const report=e.target.closest('[data-report]'); if(report){try{await reportComment(report.dataset.report)}catch(err){alert(err.message||String(err))}return}
   if(e.target.closest('[data-signout]')){await client.auth.signOut();return}
 });
@@ -152,8 +155,8 @@ async function init(){
   createClient=supabaseModule.createClient;
   client=createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
   const {data}=await client.auth.getSession(); session=data.session;
-  if(session){await loadProfile();await recordAccess('session');restoreAuthReturn()}
-  client.auth.onAuthStateChange(async(event,newSession)=>{const was=!session&&!!newSession;session=newSession;if(session)await loadProfile();else profile=null;if(was){await recordAccess('login');restoreAuthReturn()}render()});
+  if(session){setPendingOtpEmail('');await loadProfile();await recordAccess('session')}
+  client.auth.onAuthStateChange(async(event,newSession)=>{const was=!session&&!!newSession;session=newSession;if(session){setPendingOtpEmail('');await loadProfile()}else profile=null;if(was)await recordAccess('login');render()});
   await loadComments();
   client.channel(`comments:${articleKey}`).on('postgres_changes',{event:'*',schema:'public',table:'comments',filter:`article_slug=eq.${articleKey}`},()=>loadComments()).subscribe();
 }
