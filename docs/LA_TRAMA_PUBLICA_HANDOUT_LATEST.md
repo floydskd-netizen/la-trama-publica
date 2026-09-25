@@ -109,3 +109,19 @@ Pendiente que requiere intervención del owner:
 1. Google Search Console: verificar propiedad y enviar sitemaps;
 2. asignar explícitamente rol `admin` o `moderator` a la cuenta del owner para usar moderación/analítica;
 3. autorizar/conectar cuentas de canales externos antes de cualquier publicación automática.
+
+
+## Participaci?n general / buz?n de informaci?n ? 2026-09-25
+
+Implementado en base/source:
+- formulario p?blico general sin login: dato/pista, fuente, documento, correcci?n, propuesta de investigaci?n u otro;
+- tema, explicaci?n, URL opcional y archivo opcional de hasta 10 MB;
+- nombre/alias y contacto opcionales;
+- permisos separados para contacto privado, cr?dito p?blico y publicaci?n del contacto;
+- destino de notificaciones guardado server-side en `portal_private_settings`, nunca expuesto en HTML/JS/respuesta del endpoint;
+- archivos en bucket privado `contribution-files`;
+- tabla `general_contributions` con RLS y sin grants p?blicos;
+- Edge Function `receive-contribution` valida, guarda y prepara email con encabezados correspondientes al formulario;
+- cola administrativa unificada en `admin/contributions.html`: informaci?n general + aportes a notas existentes.
+
+Pendiente para activar el email autom?tico: agregar a los secrets de Edge Functions la misma Google App Password usada por SMTP Auth con nombre `GMAIL_APP_PASSWORD`. El endpoint ya guarda el aporte aunque la notificaci?n por email no pueda enviarse.
