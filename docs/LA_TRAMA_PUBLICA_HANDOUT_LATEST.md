@@ -111,17 +111,22 @@ Pendiente que requiere intervención del owner:
 3. autorizar/conectar cuentas de canales externos antes de cualquier publicación automática.
 
 
-## Participaci?n general / buz?n de informaci?n ? 2026-09-25
+## Participación general / buzón de información — 2026-09-25
 
 Implementado en base/source:
-- formulario p?blico general sin login: dato/pista, fuente, documento, correcci?n, propuesta de investigaci?n u otro;
-- tema, explicaci?n, URL opcional y archivo opcional de hasta 10 MB;
+- formulario público general sin login: dato/pista, fuente, documento, corrección, propuesta de investigación u otro;
+- tema, explicación, URL opcional y archivo opcional de hasta 10 MB;
 - nombre/alias y contacto opcionales;
-- permisos separados para contacto privado, cr?dito p?blico y publicaci?n del contacto;
+- permisos separados para contacto privado, crédito público y publicación del contacto;
 - destino de notificaciones guardado server-side en `portal_private_settings`, nunca expuesto en HTML/JS/respuesta del endpoint;
 - archivos en bucket privado `contribution-files`;
-- tabla `general_contributions` con RLS y sin grants p?blicos;
+- tabla `general_contributions` con RLS y sin grants públicos;
 - Edge Function `receive-contribution` valida, guarda y prepara email con encabezados correspondientes al formulario;
-- cola administrativa unificada en `admin/contributions.html`: informaci?n general + aportes a notas existentes.
+- cola administrativa unificada en `admin/contributions.html`: información general + aportes a notas existentes.
 
-Pendiente para activar el email autom?tico: agregar a los secrets de Edge Functions la misma Google App Password usada por SMTP Auth con nombre `GMAIL_APP_PASSWORD`. El endpoint ya guarda el aporte aunque la notificaci?n por email no pueda enviarse.
+Pendiente para activar el email automático: agregar a los secrets de Edge Functions la misma Google App Password usada por SMTP Auth con nombre `GMAIL_APP_PASSWORD`. El endpoint ya guarda el aporte aunque la notificación por email no pueda enviarse.
+
+
+## Regla de QA antes de publicar
+
+Antes de cualquier commit, push o deploy, ejecutar QA de texto y render: UTF-8 válido, ausencia de mojibake, ortografía, tildes, signos de puntuación y copy visible correcto en español e inglés. No publicar si aparecen caracteres de reemplazo, signos de interrogación dentro de palabras, secuencias típicas de mojibake o texto visible mal escrito. Ejecutar python scripts/check_text_quality.py y verificar además la página renderizada/live.

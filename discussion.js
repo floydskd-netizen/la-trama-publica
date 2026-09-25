@@ -41,7 +41,7 @@ function mount(){
   if(hero && !main.querySelector('.participation-cta')){
     const cta=document.createElement('section');
     cta.className='participation-cta';
-    cta.innerHTML=`<div class="wrap narrow participation-cta-inner"><div><p class="eyebrow">${isEn?'Open participation':'Participaci?n abierta'}</p><h2>${isEn?'Be part of La Trama P?blica':'S? parte de La Trama P?blica'}</h2><p>${isEn?'Contribute information, sources and documents. Help us verify the facts and build a more complete investigation.':'Aport? informaci?n, fuentes y documentos. Ayudanos a verificar los hechos y construir una investigaci?n m?s completa.'}</p></div><a class="btn primary" href="#aportar">${isEn?'Contribute information':'Aportar informaci?n'}</a></div>`;
+    cta.innerHTML=`<div class="wrap narrow participation-cta-inner"><div><p class="eyebrow">${isEn?'Open participation':'Participación abierta'}</p><h2>${isEn?'Be part of La Trama Pública':'Sé parte de La Trama Pública'}</h2><p>${isEn?'Contribute information, sources and documents. Help us verify the facts and build a more complete investigation.':'Aportá información, fuentes y documentos. Ayudanos a verificar los hechos y construir una investigación más completa.'}</p></div><a class="btn primary" href="#aportar">${isEn?'Contribute information':'Aportar información'}</a></div>`;
     hero.insertAdjacentElement('afterend',cta);
   }
   if(inline){
