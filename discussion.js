@@ -41,7 +41,7 @@ async function recordAccess(eventType){
   if(!client||!session) return;
   try{
     const {data}=await client.auth.getSession(); const token=data.session?.access_token; if(!token)return;
-    await fetch(`${cfg.supabaseUrl}/functions/v1/record-access`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({event_type:eventType,...deviceInfo()})});
+    await fetch(`${cfg.supabaseUrl}/functions/v1/record-access`,{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.supabaseAnonKey,'Authorization':`Bearer ${token}`},body:JSON.stringify({event_type:eventType,...deviceInfo()})});
   }catch(e){console.warn('access log failed',e)}
 }
 
@@ -123,6 +123,8 @@ document.addEventListener('click',async e=>{
 async function init(){
   mount();
   if(!cfg.enabled||!cfg.supabaseUrl||!cfg.supabaseAnonKey){render();return}
+  const supabaseModule=await import('https://esm.sh/@supabase/supabase-js@2');
+  createClient=supabaseModule.createClient;
   client=createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
   const {data}=await client.auth.getSession(); session=data.session;
   if(session){await loadProfile();await recordAccess('session')}
