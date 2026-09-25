@@ -37,14 +37,21 @@ function mount(){
   const rail=document.createElement('aside'); rail.className='discussion-rail'; rail.id='discussion-rail';
   rail.innerHTML=`<p class="eyebrow">${text.debate}</p><h2>${text.join}</h2><p class="discussion-count" data-comment-count>0</p><div class="discussion-mini" data-discussion-mini></div><a class="btn primary" href="#${threadTarget}">${text.all}</a><p class="discussion-note">${text.note}</p>`;
   document.body.appendChild(rail);
+  const hero=main.querySelector('.article-hero');
+  if(hero && !main.querySelector('.participation-cta')){
+    const cta=document.createElement('section');
+    cta.className='participation-cta';
+    cta.innerHTML=`<div class="wrap narrow participation-cta-inner"><div><p class="eyebrow">${isEn?'Open participation':'Participaci?n abierta'}</p><h2>${isEn?'Be part of La Trama P?blica':'S? parte de La Trama P?blica'}</h2><p>${isEn?'Contribute information, sources and documents. Help us verify the facts and build a more complete investigation.':'Aport? informaci?n, fuentes y documentos. Ayudanos a verificar los hechos y construir una investigaci?n m?s completa.'}</p></div><a class="btn primary" href="#aportar">${isEn?'Contribute information':'Aportar informaci?n'}</a></div>`;
+    hero.insertAdjacentElement('afterend',cta);
+  }
   if(inline){
     inline.classList.remove('comment-preview');
     inline.classList.add('discussion-inline');
     inline.setAttribute('data-discussion-inline','');
-    inline.innerHTML=`<p class="discussion-count" data-comment-count>0</p><p class="discussion-note">${text.note}</p><div data-auth-box></div><div data-composer></div><div class="discussion-thread" data-thread></div><div data-contribution-box></div><div data-verified-evidence></div>`;
+    inline.innerHTML=`<p class="discussion-count" data-comment-count>0</p><p class="discussion-note">${text.note}</p><div data-auth-box></div><div data-composer></div><div class="discussion-thread" data-thread></div><div id="aportar" data-contribution-box></div><div data-verified-evidence></div>`;
   }else{
     const full=document.createElement('section'); full.className='section discussion-full'; full.id='debate-thread';
-    full.innerHTML=`<div class="wrap narrow"><div class="section-head"><div><p class="eyebrow">${text.debate}</p><h2>${text.join}</h2></div><p class="discussion-count" data-comment-count>0</p></div><p class="discussion-note">${text.note}</p><div data-auth-box></div><div data-composer></div><div class="discussion-thread" data-thread></div><div data-contribution-box></div><div data-verified-evidence></div></div>`;
+    full.innerHTML=`<div class="wrap narrow"><div class="section-head"><div><p class="eyebrow">${text.debate}</p><h2>${text.join}</h2></div><p class="discussion-count" data-comment-count>0</p></div><p class="discussion-note">${text.note}</p><div data-auth-box></div><div data-composer></div><div class="discussion-thread" data-thread></div><div id="aportar" data-contribution-box></div><div data-verified-evidence></div></div>`;
     main.appendChild(full);
   }
   document.querySelectorAll('.quick-question').forEach((b,i)=>{const a=document.createElement('a');a.className='block-discuss-link';a.href=`#${threadTarget}`;a.textContent=isEn?'Discuss this point →':'¿Qué pensás sobre esto? → Debate';a.dataset.section=String(i+1);b.appendChild(a)});
