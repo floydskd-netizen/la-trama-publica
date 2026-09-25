@@ -7,13 +7,13 @@ const isEn = (root.lang || '').toLowerCase().startsWith('en');
 const cfg = window.LTP_DISCUSSION_CONFIG || {};
 const text = isEn ? {
   debate:'Article discussion', join:'Join the discussion', latest:'Latest comments', all:'View full thread',
-  note:'Reader opinions — not verified by La Trama Pública.', login:'Sign in by email', email:'Email', send:'Send code', code:'6-digit code', verify:'Verify code', changeEmail:'Use another email',
-  sent:'Check your email and enter the 6-digit code.', alias:'Public alias', saveAlias:'Save alias', comment:'Write a comment', publish:'Publish',
+  note:'Reader opinions — not verified by La Trama Pública.', login:'Sign in by email', email:'Email', send:'Send code', code:'Access code', verify:'Verify code', changeEmail:'Use another email',
+  sent:'Check your email and enter the access code.', alias:'Public alias', saveAlias:'Save alias', comment:'Write a comment', publish:'Publish',
   reply:'Reply', report:'Report', noComments:'No comments yet. Start the discussion.', unavailable:'Discussion is being configured.'
 } : {
   debate:'Debate de esta nota', join:'Sumate a la conversación', latest:'Últimos comentarios', all:'Ver discusión completa',
-  note:'Opiniones de lectores — no verificadas por La Trama Pública.', login:'Ingresar por email', email:'Email', send:'Enviar código', code:'Código de 6 dígitos', verify:'Verificar código', changeEmail:'Usar otro email',
-  sent:'Revisá tu email e ingresá el código de 6 dígitos.', alias:'Alias público', saveAlias:'Guardar alias', comment:'Escribí un comentario', publish:'Publicar',
+  note:'Opiniones de lectores — no verificadas por La Trama Pública.', login:'Ingresar por email', email:'Email', send:'Enviar código', code:'Código de acceso', verify:'Verificar código', changeEmail:'Usar otro email',
+  sent:'Revisá tu email e ingresá el código de acceso.', alias:'Alias público', saveAlias:'Guardar alias', comment:'Escribí un comentario', publish:'Publicar',
   reply:'Responder', report:'Reportar', noComments:'Todavía no hay comentarios. Abrí la conversación.', unavailable:'El debate se está configurando.'
 };
 
@@ -77,7 +77,7 @@ function renderAuth(){
   const box=document.querySelector('[data-auth-box]'); if(!box)return;
   if(!cfg.enabled||!client){box.innerHTML=`<div class="discussion-status">${text.unavailable}</div>`;return}
   if(!session){
-    if(pendingOtpEmail){box.innerHTML=`<form class="discussion-auth" data-otp-form><h3>${text.code}</h3><label>${text.code}<input type="text" name="token" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required></label><button class="btn primary" type="submit">${text.verify}</button><button class="btn ghost" type="button" data-change-email>${text.changeEmail}</button><p data-otp-msg>${text.sent}</p></form>`;return}
+    if(pendingOtpEmail){box.innerHTML=`<form class="discussion-auth" data-otp-form><h3>${text.code}</h3><label>${text.code}<input type="text" name="token" inputmode="numeric" pattern="[0-9]{6,10}" maxlength="10" autocomplete="one-time-code" required></label><button class="btn primary" type="submit">${text.verify}</button><button class="btn ghost" type="button" data-change-email>${text.changeEmail}</button><p data-otp-msg>${text.sent}</p></form>`;return}
     box.innerHTML=`<form class="discussion-auth" data-login-form><h3>${text.login}</h3><label>${text.email}<input type="email" name="email" required autocomplete="email"></label><button class="btn primary" type="submit">${text.send}</button><p data-login-msg></p></form>`;return
   }
   if(!profile){box.innerHTML=`<form class="discussion-auth" data-alias-form><h3>${text.alias}</h3><label>${text.alias}<input type="text" name="alias" minlength="3" maxlength="40" required></label><button class="btn primary" type="submit">${text.saveAlias}</button><p class="discussion-note">${isEn?'Your email remains private.':'Tu email permanece privado.'}</p></form>`;return}
@@ -105,7 +105,7 @@ async function login(email){
 async function verifyOtpCode(token){
   if(!pendingOtpEmail)throw new Error(isEn?'Enter your email again.':'Ingresá tu email nuevamente.');
   const code=String(token||'').replace(/\D/g,'');
-  if(code.length!==6)throw new Error(isEn?'Enter the 6-digit code.':'Ingresá el código de 6 dígitos.');
+  if(code.length<6||code.length>10)throw new Error(isEn?'Enter the access code from your email.':'Ingresá el código de acceso que recibiste por email.');
   const {error}=await client.auth.verifyOtp({email:pendingOtpEmail,token:code,type:'email'});
   if(error)throw error;
   setPendingOtpEmail('');
