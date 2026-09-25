@@ -91,3 +91,13 @@ Report only:
 - OPTIONAL LATER
 - BLOCKED
 - exact files changed
+
+## Implementation status — 2026-09-25
+
+DONE IN SOURCE: phases 1, 2, phase 3 sitemap/news technical files, 4, 5, 6, 7, 8 first-party measurement, 9 basic retention, 10, 11 documentation, and the technical portion of phase 13.
+
+PARTIAL: phase 12 has a maintainable downstream generator for validation, sitemaps, RSS, distribution copy and tracked URLs; creation of a brand-new article/social-card asset is not yet one fully automated command.
+
+OWNER ACTION REMAINS: Search Console ownership/sitemap submission; Supabase custom SMTP and full authenticated discussion test; explicit admin-profile assignment; external account/channel authorization.
+
+CURRENT HOST LIMITATION: the repository cannot control the origin-root `/robots.txt` for the `floydskd-netizen.github.io` host while deployed only as the `/la-trama-publica/` project site.

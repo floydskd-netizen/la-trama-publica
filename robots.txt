@@ -1,0 +1,5 @@
+# GitHub Pages project-site copy. Crawlers normally request /robots.txt at the origin root.
+User-agent: *
+Allow: /
+Sitemap: https://floydskd-netizen.github.io/la-trama-publica/sitemap.xml
+Sitemap: https://floydskd-netizen.github.io/la-trama-publica/news-sitemap.xml

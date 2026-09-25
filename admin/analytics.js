@@ -1,0 +1,10 @@
+(()=>{
+const cfg=window.LTP_DISCUSSION_CONFIG||{},api=window.supabase?.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const box=$('#auth-box'),dash=$('#dashboard'),status=$('#auth-status');
+function table(title,rows=[]){return `<section class="section"><h2>${esc(title)}</h2><table class="analytics-table"><thead><tr><th>Valor</th><th>Total</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${Number(r.count)||0}</td></tr>`).join('')||'<tr><td colspan="2">Sin datos</td></tr>'}</tbody></table></section>`}
+async function load(){if(!api){status.textContent='Configuración de Supabase no disponible.';return}const {data:{session}}=await api.auth.getSession();if(!session){box.hidden=false;dash.hidden=true;return}const {data,error}=await api.rpc('admin_analytics_summary',{p_days:30});if(error){box.hidden=false;dash.hidden=true;status.textContent=error.message.includes('forbidden')?'La cuenta autenticada no tiene rol admin.':error.message;return}box.hidden=true;dash.hidden=false;$('#pageviews').textContent=data.pageviews;$('#visitors').textContent=data.unique_visitors;$('#shares').textContent=data.shares;$('#period').textContent=`${data.days} días`;$('#tables').innerHTML=table('Notas más leídas',data.top_articles)+table('Fuentes / UTM',data.sources)+table('Referentes',data.referrers)+table('Campañas',data.campaigns)+table('Canales compartidos',data.share_targets)+table('Dispositivos',data.devices)}
+$('#login').addEventListener('click',async()=>{const email=$('#email').value.trim();if(!email)return;status.textContent='Enviando…';const {error}=await api.auth.signInWithOtp({email,options:{emailRedirectTo:location.href}});status.textContent=error?error.message:'Revisá tu email para abrir el enlace de acceso.'});
+$('#refresh').addEventListener('click',load);$('#logout').addEventListener('click',async()=>{await api.auth.signOut();location.reload()});
+api?.auth.onAuthStateChange(()=>setTimeout(load,0));load();
+})();

@@ -71,3 +71,30 @@ Construir la base de distribución, descubrimiento, crecimiento de audiencia y m
 El website es la fuente canónica; redes, mensajería, buscadores, newsletters y comunidades son canales de distribución.
 Facebook NO es requisito y está considerado OPTIONAL / FUTURE / MANUAL mientras la cuenta siga bloqueada por Meta.
 Ver `docs/DISTRIBUTION_GROWTH_BACKLOG.md`.
+
+## Distribution / growth implementado — 2026-09-25
+
+Implementado y verificado en source:
+- metadata de descubrimiento + JSON-LD en las 4 notas ES y las 2 traducciones EN;
+- hreflang ES/EN donde existe traducción;
+- `sitemap.xml`, `news-sitemap.xml` reciente y `rss.xml` generados por `tools/update-distribution.mjs`;
+- controles de compartir WhatsApp / X / Telegram / Web Share / copiar enlace;
+- UTM consistentes y captura de campaña antes de limpiar la URL visible;
+- contenido de distribución reutilizable en `data/distribution.json` y `distribution/*.md`;
+- navegación de retención con notas relacionadas, archivo y RSS;
+- analítica first-party con pageviews, visitante aproximado por hash, referrer host, UTM, dispositivo y eventos de compartir;
+- tabla Supabase `analytics_events` con RLS y sin acceso de tabla para anon/authenticated;
+- Edge Function `record-analytics` publicada y verificada con ingreso HTTP 204 + hash SHA-256 de 64 caracteres;
+- dashboard privado `admin/analytics.html` preparado; el RPC devuelve sólo agregados y exige rol `admin`;
+- estrategia, checklist de canales, analítica y Search Console documentados.
+
+Limitación conocida de `robots.txt`:
+- el sitio actual es un GitHub Pages project site bajo `/la-trama-publica/`;
+- el robots autoritativo debería vivir en `https://floydskd-netizen.github.io/robots.txt`, fuera de este repo, y esa URL actualmente devuelve 404;
+- el repo conserva un `robots.txt` de referencia, pero no se lo considera autoritativo en el host actual.
+
+Pendiente que requiere intervención del owner:
+1. SMTP propio / Resend para Supabase Auth;
+2. Google Search Console: verificar propiedad y enviar sitemaps;
+3. autenticar la cuenta que será administradora y asignarle explícitamente rol `admin` (actualmente hay 0 perfiles admin);
+4. autorizar/conectar cuentas de canales externos antes de cualquier publicación automática.
