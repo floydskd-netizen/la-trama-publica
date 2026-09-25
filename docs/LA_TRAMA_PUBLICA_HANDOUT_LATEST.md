@@ -72,7 +72,7 @@ Implementado en base y source:
 - aportes verificados visibles públicamente con la atribución elegida;
 - cola privada `admin/contributions.html` para admin/moderator;
 - `contributor_profiles`, `contributor_contacts` y `evidence_submissions` con RLS y sin grants directos para `anon`/`authenticated`;
-- exposición p?blica únicamente por RPC y sólo para aportes `verified`.
+- exposición pública únicamente por RPC y sólo para aportes `verified`.
 
 Estado de roles al implementar: 1 perfil `reader`, 0 `admin`. No se promovió ninguna cuenta automáticamente. La moderación web requiere asignar explícitamente rol `admin` o `moderator` a la cuenta del owner.
 
@@ -108,4 +108,4 @@ Limitación conocida de `robots.txt`:
 Pendiente que requiere intervención del owner:
 1. Google Search Console: verificar propiedad y enviar sitemaps;
 2. asignar explícitamente rol `admin` o `moderator` a la cuenta del owner para usar moderación/analítica;
-3. autorizar/conectar cuentas de canales externos antes de cualquier publicación autom?tica.
+3. autorizar/conectar cuentas de canales externos antes de cualquier publicación automática.
