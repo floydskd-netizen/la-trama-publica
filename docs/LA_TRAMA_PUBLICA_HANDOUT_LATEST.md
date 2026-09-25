@@ -77,7 +77,8 @@ Ver `docs/DISTRIBUTION_GROWTH_BACKLOG.md`.
 Implementado y verificado en source:
 - metadata de descubrimiento + JSON-LD en las 4 notas ES y las 2 traducciones EN;
 - hreflang ES/EN donde existe traducción;
-- `sitemap.xml`, `news-sitemap.xml` reciente y `rss.xml` generados por `tools/update-distribution.mjs`;`r`n- `node tools/prepare-publication.mjs` ejecuta en un solo comando la instalación/validación del cliente de crecimiento y la regeneración de discovery/distribution;
+- `sitemap.xml`, `news-sitemap.xml` reciente y `rss.xml` generados por `tools/update-distribution.mjs`;
+- `node tools/prepare-publication.mjs` ejecuta en un solo comando la instalación/validación del cliente de crecimiento y la regeneración de discovery/distribution;
 - controles de compartir WhatsApp / X / Telegram / Web Share / copiar enlace;
 - UTM consistentes y captura de campaña antes de limpiar la URL visible;
 - contenido de distribución reutilizable en `data/distribution.json` y `distribution/*.md`;
