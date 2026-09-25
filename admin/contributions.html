@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="es-AR" data-base="../">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Aportes de lectores — La Trama Pública</title><link rel="stylesheet" href="../styles.css"><link rel="icon" type="image/png" href="../assets/branding/tp-mark.png">
+</head>
+<body class="admin-contributions"><header class="site-header"><div class="masthead wrap"><a class="brand" href="../"><img class="brand-logo" src="../assets/branding/la-trama-publica-logo.png" alt="La Trama Pública"></a><nav class="main-nav"><a href="../">Inicio</a><a href="analytics.html">Analítica</a></nav></div></header>
+<main><section class="archive-hero"><div class="wrap narrow"><p class="eyebrow">Administración privada</p><h1>Aportes de lectores</h1><p class="lead">Revisá fuentes enviadas por la comunidad. Sólo los aportes marcados como verificados aparecen públicamente con el crédito elegido por el colaborador.</p></div></section>
+<section class="section"><div class="wrap narrow">
+<div id="auth-box" class="discussion-auth"><h3>Acceso de administrador</h3><form id="email-form"><label>Email<input id="email" type="email" autocomplete="email" required></label><button class="btn primary" type="submit">Enviar código</button></form><form id="code-form" hidden><label>C?digo de acceso<input id="code" type="text" inputmode="numeric" pattern="[0-9]{6,10}" maxlength="10" autocomplete="one-time-code" required></label><button class="btn primary" type="submit">Verificar código</button></form><p id="auth-status" class="muted"></p><button id="auth-logout" class="btn ghost" type="button" hidden>Cerrar sesión</button></div>
+<div id="dashboard" hidden><div class="moderation-toolbar"><label>Estado<select id="filter"><option value="pending">Recibidos</option><option value="reviewing">En revisión</option><option value="verified">Verificados</option><option value="rejected">No incorporados</option><option value="">Todos</option></select></label><button id="refresh" class="btn ghost" type="button">Actualizar</button><button id="logout" class="btn ghost" type="button">Salir</button></div><div id="submissions" class="moderation-list"></div></div>
+</div></section></main>
+<script src="../discussion-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.js"></script><script src="contributions.js"></script>
+</body></html>

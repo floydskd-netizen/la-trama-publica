@@ -47,23 +47,34 @@ Seguridad verificada:
 - roles admin/moderator no son autoasignables;
 - `access_events` no tiene políticas públicas deliberadamente;
 - Edge Function `record-access` requiere JWT.
-## Bloqueo actual: correo de autenticación
+## Autenticación vigente — verificada 2026-09-25
 
-La configuración de URL de Supabase ya fue corregida y verificada visualmente:
-- Site URL: `https://floydskd-netizen.github.io/la-trama-publica/`
-- Redirect URL permitida: `https://floydskd-netizen.github.io/la-trama-publica/**`
+El login público ya no usa magic links. Flujo actual:
+- SMTP personalizado de Supabase configurado con Gmail App Password;
+- `signInWithOtp()` envía un código numérico por email;
+- el lector ingresa el código en la misma nota;
+- `verifyOtp(..., type: "email")` crea la sesión;
+- la sesión se persiste en el navegador mediante Supabase;
+- luego se solicita alias público una sola vez para comentar o aportar.
 
-El problema actual es `email rate limit exceeded` del SMTP integrado de Supabase.
-El SMTP integrado es sólo adecuado para pruebas y tiene límites estrictos.
+Se corrigió además la divergencia de deploy: GitHub Pages y Cloudflare Pages deben publicarse juntos porque `latramapublica.pages.dev` es un proyecto de direct upload sin conexión Git.
 
-Pendiente obligatorio antes de considerar el login listo para público:
-1. configurar SMTP propio en Supabase Auth;
-2. opción recomendada por simplicidad: Resend, sin asumir pago ni crear cuenta sin autorización;
-3. verificar envío real;
-4. verificar login -> alias -> comentario -> respuesta -> reporte -> registro técnico;
-5. revisar deliverability y privacidad.
+## Verificación colaborativa / aportes de lectores — 2026-09-25
 
-NO seguir gastando magic links mientras el SMTP integrado esté limitado.
+Implementado en base y source:
+- formulario por nota para aportar URL/documento público y explicar qué verifica;
+- clasificación: confirma, contradice, agrega contexto, corrección, documento u otro;
+- estados: recibido, en revisión, verificado, no incorporado;
+- nombre elegido para créditos y perfil/sitio público opcional;
+- contacto privado en tabla separada, no en perfiles públicos;
+- permiso explícito para que La Trama Pública contacte al colaborador;
+- opt-in independiente para publicar ese dato de contacto junto al crédito;
+- aportes verificados visibles públicamente con la atribución elegida;
+- cola privada `admin/contributions.html` para admin/moderator;
+- `contributor_profiles`, `contributor_contacts` y `evidence_submissions` con RLS y sin grants directos para `anon`/`authenticated`;
+- exposición p?blica únicamente por RPC y sólo para aportes `verified`.
+
+Estado de roles al implementar: 1 perfil `reader`, 0 `admin`. No se promovió ninguna cuenta automáticamente. La moderación web requiere asignar explícitamente rol `admin` o `moderator` a la cuenta del owner.
 
 ## Próximo frente de trabajo aprobado
 
@@ -95,7 +106,6 @@ Limitación conocida de `robots.txt`:
 - el repo conserva un `robots.txt` de referencia, pero no se lo considera autoritativo en el host actual.
 
 Pendiente que requiere intervención del owner:
-1. SMTP propio / Resend para Supabase Auth;
-2. Google Search Console: verificar propiedad y enviar sitemaps;
-3. autenticar la cuenta que será administradora y asignarle explícitamente rol `admin` (actualmente hay 0 perfiles admin);
-4. autorizar/conectar cuentas de canales externos antes de cualquier publicación automática.
+1. Google Search Console: verificar propiedad y enviar sitemaps;
+2. asignar explícitamente rol `admin` o `moderator` a la cuenta del owner para usar moderación/analítica;
+3. autorizar/conectar cuentas de canales externos antes de cualquier publicación autom?tica.

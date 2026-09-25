@@ -19,6 +19,7 @@ const text = isEn ? {
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let client = null, session = null, profile = null, comments = [], pendingOtpEmail = '';
+let contributorProfile = null, ownEvidence = [], verifiedEvidence = [];
 try{pendingOtpEmail=sessionStorage.getItem('ltp_otp_email')||''}catch{}
 function setPendingOtpEmail(email){pendingOtpEmail=email;try{if(email)sessionStorage.setItem('ltp_otp_email',email);else sessionStorage.removeItem('ltp_otp_email')}catch{}}
 function deviceInfo(){
@@ -40,10 +41,10 @@ function mount(){
     inline.classList.remove('comment-preview');
     inline.classList.add('discussion-inline');
     inline.setAttribute('data-discussion-inline','');
-    inline.innerHTML=`<p class="discussion-count" data-comment-count>0</p><p class="discussion-note">${text.note}</p><div data-auth-box></div><div data-composer></div><div class="discussion-thread" data-thread></div>`;
+    inline.innerHTML=`<p class="discussion-count" data-comment-count>0</p><p class="discussion-note">${text.note}</p><div data-auth-box></div><div data-composer></div><div class="discussion-thread" data-thread></div><div data-contribution-box></div><div data-verified-evidence></div>`;
   }else{
     const full=document.createElement('section'); full.className='section discussion-full'; full.id='debate-thread';
-    full.innerHTML=`<div class="wrap narrow"><div class="section-head"><div><p class="eyebrow">${text.debate}</p><h2>${text.join}</h2></div><p class="discussion-count" data-comment-count>0</p></div><p class="discussion-note">${text.note}</p><div data-auth-box></div><div data-composer></div><div class="discussion-thread" data-thread></div></div>`;
+    full.innerHTML=`<div class="wrap narrow"><div class="section-head"><div><p class="eyebrow">${text.debate}</p><h2>${text.join}</h2></div><p class="discussion-count" data-comment-count>0</p></div><p class="discussion-note">${text.note}</p><div data-auth-box></div><div data-composer></div><div class="discussion-thread" data-thread></div><div data-contribution-box></div><div data-verified-evidence></div></div>`;
     main.appendChild(full);
   }
   document.querySelectorAll('.quick-question').forEach((b,i)=>{const a=document.createElement('a');a.className='block-discuss-link';a.href=`#${threadTarget}`;a.textContent=isEn?'Discuss this point →':'¿Qué pensás sobre esto? → Debate';a.dataset.section=String(i+1);b.appendChild(a)});
@@ -67,6 +68,53 @@ async function loadComments(){
   const {data,error}=await client.rpc('public_comments',{p_article_slug:articleKey});
   if(error){console.error(error);comments=[]}else comments=data||[];
   render();
+}
+
+async function loadContributorProfile(){
+  if(!client||!session||!profile){contributorProfile=null;return}
+  const {data,error}=await client.rpc('my_contributor_profile');
+  if(error){console.warn(error);contributorProfile=null;return}
+  contributorProfile=Array.isArray(data)?(data[0]||null):data;
+}
+
+async function loadEvidence(){
+  if(!client){verifiedEvidence=[];ownEvidence=[];return}
+  const pub=await client.rpc('public_evidence_contributions',{p_article_slug:articleKey});
+  if(pub.error){console.warn(pub.error);verifiedEvidence=[]}else verifiedEvidence=pub.data||[];
+  if(session&&profile){
+    const own=await client.rpc('my_evidence_submissions',{p_article_slug:articleKey});
+    if(own.error){console.warn(own.error);ownEvidence=[]}else ownEvidence=own.data||[];
+  }else ownEvidence=[];
+}
+
+function safeHttpUrl(value){
+  try{const u=new URL(value);return /^https?:$/.test(u.protocol)?u.href:''}catch{return ''}
+}
+function evidenceRelationLabel(value){
+  const es={confirms:'Confirma',contradicts:'Contradice',context:'Agrega contexto',correction:'Propone corrección',document:'Aporta documento',other:'Otro aporte'};
+  const en={confirms:'Confirms',contradicts:'Contradicts',context:'Adds context',correction:'Proposes correction',document:'Provides document',other:'Other contribution'};
+  return (isEn?en:es)[value]||value;
+}
+function evidenceStatusLabel(value){
+  const es={pending:'Recibido',reviewing:'En revisión',verified:'Verificado',rejected:'No incorporado'};
+  const en={pending:'Received',reviewing:'Under review',verified:'Verified',rejected:'Not incorporated'};
+  return (isEn?en:es)[value]||value;
+}
+function renderVerifiedEvidence(){
+  const host=document.querySelector('[data-verified-evidence]'); if(!host)return;
+  if(!verifiedEvidence.length){host.innerHTML='';return}
+  host.innerHTML=`<section class="verified-evidence"><p class="eyebrow">${isEn?'Verified reader contributions':'Aportes verificados de lectores'}</p><h3>${isEn?'Sources incorporated into this article':'Fuentes aportadas por la comunidad'}</h3><div class="evidence-list">${verifiedEvidence.map(x=>{const href=safeHttpUrl(x.source_url);const credit=x.credit_name?`<strong>${esc(x.credit_name)}</strong>`:(isEn?'Anonymous contribution':'Aporte anónimo');const profileUrl=safeHttpUrl(x.credit_url);const contact=x.public_contact_method&&x.public_contact_value?`<span>${esc(x.public_contact_method)}: ${esc(x.public_contact_value)}</span>`:'';return `<article class="evidence-card"><div><span class="evidence-badge">${esc(evidenceRelationLabel(x.relation))}</span><p>${esc(x.summary)}</p>${href?`<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${isEn?'Open source':'Abrir fuente'}</a>`:''}</div><footer><span>${isEn?'Credit':'Crédito'}: ${profileUrl?`<a href="${esc(profileUrl)}" target="_blank" rel="noopener noreferrer">${credit}</a>`:credit}</span>${contact}</footer></article>`}).join('')}</div></section>`;
+}
+function renderContribution(){
+  const host=document.querySelector('[data-contribution-box]'); if(!host)return;
+  const title=isEn?'Help us verify':'Ayudanos a verificar';
+  const intro=isEn?'If you have a public document, primary source or verifiable data that confirms, contradicts or adds context to this article, send it for editorial review.':'Si tenés un documento público, una fuente primaria o un dato verificable que confirma, contradice o agrega contexto a esta nota, podés enviarlo para revisión editorial.';
+  if(!session||!profile){host.innerHTML=`<section class="contribution-panel"><p class="eyebrow">${isEn?'Collaborative verification':'Verificación colaborativa'}</p><h3>${title}</h3><p>${intro}</p><p class="discussion-note">${isEn?'Sign in above and choose a public alias to contribute evidence.':'Ingresá arriba y elegí un alias público para aportar evidencia.'}</p></section>`;renderVerifiedEvidence();return}
+  const cp=contributorProfile||{}; const creditName=cp.credit_name||profile.alias||'';
+  const options=[['','—'],['email','Email'],['whatsapp','WhatsApp'],['telegram','Telegram'],['phone',isEn?'Phone / SMS':'Teléfono / SMS'],['x','X'],['other',isEn?'Other':'Otro']].map(([v,l])=>`<option value="${v}"${cp.contact_method===v?' selected':''}>${l}</option>`).join('');
+  const mine=ownEvidence.length?`<div class="my-evidence"><h4>${isEn?'Your submissions':'Tus aportes'}</h4>${ownEvidence.map(x=>{const href=safeHttpUrl(x.source_url);return `<article><span class="evidence-status status-${esc(x.status)}">${esc(evidenceStatusLabel(x.status))}</span><strong>${esc(evidenceRelationLabel(x.relation))}</strong><p>${esc(x.summary)}</p>${href?`<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${isEn?'Source':'Fuente'}</a>`:''}${x.review_note?`<small>${isEn?'Editorial note':'Nota editorial'}: ${esc(x.review_note)}</small>`:''}</article>`}).join('')}</div>`:'';
+  host.innerHTML=`<section class="contribution-panel"><p class="eyebrow">${isEn?'Collaborative verification':'Verificación colaborativa'}</p><h3>${title}</h3><p>${intro}</p><form class="evidence-form" data-evidence-form><label>${isEn?'Source URL':'URL de la fuente'}<input name="source_url" type="url" required placeholder="https://..."></label><label>${isEn?'What does it contribute?':'¿Qué aporta?'}<select name="relation" required><option value="confirms">${isEn?'Confirms':'Confirma'}</option><option value="contradicts">${isEn?'Contradicts':'Contradice'}</option><option value="context">${isEn?'Adds context':'Agrega contexto'}</option><option value="correction">${isEn?'Proposes correction':'Propone corrección'}</option><option value="document">${isEn?'Provides document':'Aporta documento'}</option><option value="other">${isEn?'Other':'Otro'}</option></select></label><label>${isEn?'Explain why this source matters':'Explicá qué permite verificar'}<textarea name="summary" minlength="5" maxlength="2000" required></textarea></label><p class="discussion-note">${isEn?'If you do not change your credit preferences, your public alias will be used as the credit.':'Si no cambiás tus preferencias de crédito, se usará tu alias público como crédito.'}</p><button class="btn primary" type="submit">${isEn?'Send for review':'Enviar para revisión'}</button><p data-evidence-msg></p></form><details class="contributor-settings"><summary>${isEn?'Credit and contact preferences':'Créditos y contacto'}</summary><form data-contributor-form><label>${isEn?'Name shown in credits':'Nombre para los créditos'}<input name="credit_name" maxlength="80" value="${esc(creditName)}"></label><label>${isEn?'Public profile / website (optional)':'Perfil o sitio público (opcional)'}<input name="credit_url" type="url" value="${esc(cp.credit_url||'')}" placeholder="https://..."></label><label>${isEn?'Preferred contact method (optional)':'Medio de contacto preferido (opcional)'}<select name="contact_method">${options}</select></label><label>${isEn?'Contact information':'Dato de contacto'}<input name="contact_value" maxlength="200" value="${esc(cp.contact_value||'')}"></label><label class="check"><input type="checkbox" name="credit_enabled"${cp.credit_enabled===false?'':' checked'}> ${isEn?'Credit me when an accepted contribution is published':'Mostrar mi crédito cuando un aporte sea verificado'}</label><label class="check"><input type="checkbox" name="allow_contact"${cp.allow_contact===false?'':' checked'}> ${isEn?'La Trama Pública may contact me privately about my contribution':'La Trama Pública puede contactarme en privado por mi aporte'}</label><label class="check"><input type="checkbox" name="public_contact"${cp.public_contact?' checked':''}> ${isEn?'Also show this contact information publicly with my credit':'También mostrar públicamente este dato de contacto junto a mi crédito'}</label><p class="discussion-note">${isEn?'Contact information stays private unless you explicitly enable the last option.':'El dato de contacto permanece privado salvo que actives expresamente la última opción.'}</p><button class="btn ghost" type="submit">${isEn?'Save preferences':'Guardar preferencias'}</button><p data-contributor-msg></p></form></details>${mine}</section>`;
+  renderVerifiedEvidence();
 }
 
 function renderTree(items,parent=null,depth=0){
@@ -93,7 +141,7 @@ function render(){
   document.querySelectorAll('[data-comment-count]').forEach(el=>el.textContent=`${comments.length} ${comments.length===1?(isEn?'comment':'comentario'):(isEn?'comments':'comentarios')}`);
   const mini=document.querySelector('[data-discussion-mini]'); if(mini)mini.innerHTML=comments.slice(-3).reverse().map(c=>`<a href="#comment-${c.id}"><strong>@${esc(c.alias)}</strong><span>${esc(c.body.slice(0,110))}${c.body.length>110?'…':''}</span></a>`).join('')||`<p>${text.noComments}</p>`;
   const thread=document.querySelector('[data-thread]'); if(thread)thread.innerHTML=comments.length?renderTree(comments):`<p class="discussion-empty">${text.noComments}</p>`;
-  renderAuth(); renderComposer();
+  renderAuth(); renderComposer(); renderContribution();
 }
 
 async function login(email){
@@ -119,6 +167,24 @@ async function saveAlias(alias){
   if(error)throw error; await loadProfile(); render();
 }
 
+async function saveContributorPreferences(form){
+  const args={
+    p_credit_name:form.credit_name.value.trim()||null,
+    p_credit_url:form.credit_url.value.trim()||null,
+    p_credit_enabled:form.credit_enabled.checked,
+    p_contact_method:form.contact_method.value||null,
+    p_contact_value:form.contact_value.value.trim()||null,
+    p_allow_contact:form.allow_contact.checked,
+    p_public_contact:form.public_contact.checked
+  };
+  const {error}=await client.rpc('save_contributor_profile',args); if(error)throw error;
+  await loadContributorProfile(); render();
+}
+async function submitEvidence(form){
+  const {error}=await client.rpc('submit_evidence',{p_article_slug:articleKey,p_source_url:form.source_url.value.trim(),p_relation:form.relation.value,p_summary:form.summary.value.trim()});
+  if(error)throw error; await loadEvidence(); render();
+}
+
 async function publishComment(body,parent_id){
   const row={article_slug:articleKey,user_id:session.user.id,body,parent_id:parent_id||null};
   const {error}=await client.from('comments').insert(row); if(error)throw error;
@@ -135,7 +201,9 @@ document.addEventListener('submit',async e=>{
   try{
     if(f.matches('[data-login-form]')){e.preventDefault();await login(f.email.value.trim());render()}
     if(f.matches('[data-otp-form]')){e.preventDefault();await verifyOtpCode(f.token.value)}
-    if(f.matches('[data-alias-form]')){e.preventDefault();await saveAlias(f.alias.value.trim())}
+    if(f.matches('[data-alias-form]')){e.preventDefault();await saveAlias(f.alias.value.trim());await loadContributorProfile();await loadEvidence();render()}
+    if(f.matches('[data-contributor-form]')){e.preventDefault();const msg=f.querySelector('[data-contributor-msg]');await saveContributorPreferences(f);if(msg)msg.textContent=isEn?'Saved.':'Guardado.'}
+    if(f.matches('[data-evidence-form]')){e.preventDefault();const msg=f.querySelector('[data-evidence-msg]');if(msg)msg.textContent=isEn?'Sending…':'Enviando…';await submitEvidence(f);}
     if(f.matches('[data-comment-form]')){e.preventDefault();const msg=f.querySelector('[data-comment-msg]');msg.textContent=isEn?'Publishing…':'Publicando…';await publishComment(f.body.value.trim(),f.parent_id.value);msg.textContent='';renderComposer()}
   }catch(err){console.error(err);const msg=f.querySelector('p');if(msg)msg.textContent=err.message||String(err)}
 });
@@ -155,9 +223,10 @@ async function init(){
   createClient=supabaseModule.createClient;
   client=createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
   const {data}=await client.auth.getSession(); session=data.session;
-  if(session){setPendingOtpEmail('');await loadProfile();await recordAccess('session')}
-  client.auth.onAuthStateChange(async(event,newSession)=>{const was=!session&&!!newSession;session=newSession;if(session){setPendingOtpEmail('');await loadProfile()}else profile=null;if(was)await recordAccess('login');render()});
+  if(session){setPendingOtpEmail('');await loadProfile();await loadContributorProfile();await recordAccess('session')}
+  client.auth.onAuthStateChange(async(event,newSession)=>{const was=!session&&!!newSession;session=newSession;if(session){setPendingOtpEmail('');await loadProfile();await loadContributorProfile()}else{profile=null;contributorProfile=null;ownEvidence=[]}if(was)await recordAccess('login');await loadEvidence();render()});
   await loadComments();
+  await loadEvidence();
   client.channel(`comments:${articleKey}`).on('postgres_changes',{event:'*',schema:'public',table:'comments',filter:`article_slug=eq.${articleKey}`},()=>loadComments()).subscribe();
 }
 
