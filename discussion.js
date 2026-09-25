@@ -29,13 +29,22 @@ function deviceInfo(){
 
 function mount(){
   const main=document.querySelector('main'); if(!main) return;
+  const inline=document.querySelector('[data-discussion-inline], .comment-preview');
+  const threadTarget=inline?'debate':'debate-thread';
   const rail=document.createElement('aside'); rail.className='discussion-rail'; rail.id='discussion-rail';
-  rail.innerHTML=`<p class="eyebrow">${text.debate}</p><h2>${text.join}</h2><p class="discussion-count" data-comment-count>0</p><div class="discussion-mini" data-discussion-mini></div><a class="btn primary" href="#debate-thread">${text.all}</a><p class="discussion-note">${text.note}</p>`;
+  rail.innerHTML=`<p class="eyebrow">${text.debate}</p><h2>${text.join}</h2><p class="discussion-count" data-comment-count>0</p><div class="discussion-mini" data-discussion-mini></div><a class="btn primary" href="#${threadTarget}">${text.all}</a><p class="discussion-note">${text.note}</p>`;
   document.body.appendChild(rail);
-  const full=document.createElement('section'); full.className='section discussion-full'; full.id='debate-thread';
-  full.innerHTML=`<div class="wrap narrow"><div class="section-head"><div><p class="eyebrow">${text.debate}</p><h2>${text.join}</h2></div><p class="discussion-count" data-comment-count>0</p></div><p class="discussion-note">${text.note}</p><div data-auth-box></div><div data-composer></div><div class="discussion-thread" data-thread></div></div>`;
-  main.appendChild(full);
-  document.querySelectorAll('.quick-question').forEach((b,i)=>{const a=document.createElement('a');a.className='block-discuss-link';a.href='#debate-thread';a.textContent=isEn?'Discuss this point →':'¿Qué pensás sobre esto? → Debate';a.dataset.section=String(i+1);b.appendChild(a)});
+  if(inline){
+    inline.classList.remove('comment-preview');
+    inline.classList.add('discussion-inline');
+    inline.setAttribute('data-discussion-inline','');
+    inline.innerHTML=`<p class="discussion-count" data-comment-count>0</p><p class="discussion-note">${text.note}</p><div data-auth-box></div><div data-composer></div><div class="discussion-thread" data-thread></div>`;
+  }else{
+    const full=document.createElement('section'); full.className='section discussion-full'; full.id='debate-thread';
+    full.innerHTML=`<div class="wrap narrow"><div class="section-head"><div><p class="eyebrow">${text.debate}</p><h2>${text.join}</h2></div><p class="discussion-count" data-comment-count>0</p></div><p class="discussion-note">${text.note}</p><div data-auth-box></div><div data-composer></div><div class="discussion-thread" data-thread></div></div>`;
+    main.appendChild(full);
+  }
+  document.querySelectorAll('.quick-question').forEach((b,i)=>{const a=document.createElement('a');a.className='block-discuss-link';a.href=`#${threadTarget}`;a.textContent=isEn?'Discuss this point →':'¿Qué pensás sobre esto? → Debate';a.dataset.section=String(i+1);b.appendChild(a)});
 }
 async function recordAccess(eventType){
   if(!client||!session) return;
